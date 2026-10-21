@@ -40,7 +40,7 @@ def load_all_sounds():
         
 
 SPRITES = {
-    "backdrop": "background.png",
+    "backdrop": "grass_background.png",
     "blank": "blank.png",
 }
 

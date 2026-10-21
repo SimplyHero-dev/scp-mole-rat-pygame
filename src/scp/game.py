@@ -1,6 +1,7 @@
 import pygame as pg
 from dataclasses import dataclass, field
 from scp.game_loop import GameLoop, GameMenu, GameEditing
+from scp.display import Display
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
 from scp.sprite_manager import Spritemanager
@@ -39,10 +40,7 @@ class ScpGame:
     def init(self):
         self.assert_state_is(GameState.initializing)
         pg.init()
-        window_style = pg.FULLSCREEN if self.fullscreen else 0
-        
-        bit_depth = pg.display.mode_ok(self.screen_rect.size, window_style, 32)
-        screen = pg.display.set_mode(self.screen_rect.size, window_style, bit_depth)
+
         pg.mixer.pre_init(
             frequency = 44100,
             size = 32,
@@ -50,7 +48,13 @@ class ScpGame:
             buffer = 512,
         )
         pg.font.init()
-        self.screen = screen
+        
+        self.display = Display(
+            self.screen_rect.size,
+            fullscreen = self.fullscreen
+        )
+        
+        self.screen = self.display.game_surface
         
         from scp.asset_loader import load_all_images, load_all_sounds
         load_all_images()

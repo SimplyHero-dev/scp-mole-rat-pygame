@@ -6,7 +6,7 @@ TILE_HEIGHT = 32
 TILE_WIDTH = 32
 
 TILES_Y = 33
-TILES_X = 50
+TILES_X = 40
 
 def get_grid_rect(gx, gy):
     

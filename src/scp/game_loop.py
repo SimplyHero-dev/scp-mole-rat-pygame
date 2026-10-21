@@ -2,6 +2,7 @@ import pygame as pg
 import random
 from dataclasses import dataclass
 from scp.state import GameState
+from scp.display import Display
 from scp.grid import create_tile_map, tile_positions 
 from scp.sprites import Background
 from scp.asset_loader import IMAGE_SPRITES
@@ -17,13 +18,17 @@ class GameLoop:
     game: "ScpGame"
     
     def handle_events(self):
-        
         for event in pg.event.get():
-            if (
-                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
-            ) or event.type == pg.QUIT:
+            if event.type == pg.QUIT:
                 self.set_state(GameState.quitting)
             
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    self.set_state(GameState.quitting)
+                    
+                elif event.key == pg.K_f:
+                    self.game.display.toggle_fullscreen()
+                
             self.handle_event(event)
             
     def loop(self):
@@ -80,7 +85,7 @@ class GameMenu(GameLoop):
             group.update()
             # Tell the group where to draw
             group.draw(self.screen)
-            pg.display.flip()
+            self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)
 
@@ -112,6 +117,6 @@ class GameEditing(GameLoop):
             self.layers.update()   
             self.layers.draw(self.screen)
     
-            pg.display.flip()
+            self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  
