@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 from dataclasses import dataclass
 from scp.sprites import Background
 
@@ -6,13 +6,13 @@ from scp.sprites import Background
 @dataclass
 class Spritemanager:
 
-    layers: pygame.sprite.LayeredUpdates
-    selected: pygame.sprite.LayeredUpdates
+    layers: pg.sprite.LayeredUpdates
+    selected: pg.sprite.LayeredUpdates
     level: list
 
     @classmethod
     def create(cls, layers, level):
-        return cls(layers = layers, level = level, selected = pygame.sprite.LayeredUpdates())
+        return cls(layers = layers, level = level, selected = pg.sprite.LayeredUpdates())
 
     def create_background(self, position, orientation = None, index = None):
         background = Background.create_from_tile(

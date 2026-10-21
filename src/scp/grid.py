@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 from dataclasses import dataclass, field
 from typing import Tuple, Optional
 
@@ -10,7 +10,7 @@ TILES_X = 50
 
 def get_grid_rect(gx, gy):
     
-    return pygame.Rect(gx * TILE_WIDTH, gy * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
+    return pg.Rect(gx * TILE_WIDTH, gy * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT)
 
 def tile_positions():
     
@@ -30,7 +30,7 @@ def create_tile_map(default_value = None) -> list:
 @dataclass
 class GridTile:
     
-    tile: pygame.sprite.Sprite
+    tile: pg.sprite.Sprite
     position: Tuple[int, int]
     east: Optional["GridTile"] = field(repr = False, default = None)
     west: Optional["GridTile"] = field(repr = False, default = None)

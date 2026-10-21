@@ -1,16 +1,16 @@
-import pygame
+import pygame as pg
 from dataclasses import dataclass, field
 from scp.game_loop import GameLoop, GameMenu, GameEditing
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
 from scp.sprite_manager import Spritemanager
 
-SCREENRECT = pygame.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
+SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
 @dataclass
 class ScpGame:
-    screen: pygame.Rect
-    screen_rect: pygame.Rect
+    screen: pg.Rect
+    screen_rect: pg.Rect
     fullscreen: bool
     state: GameState
     game_menu: GameLoop = field(init=False, default = None)
@@ -38,18 +38,18 @@ class ScpGame:
         
     def init(self):
         self.assert_state_is(GameState.initializing)
-        pygame.init()
-        window_style = pygame.FULLSCREEN if self.fullscreen else 0
+        pg.init()
+        window_style = pg.FULLSCREEN if self.fullscreen else 0
         
-        bit_depth = pygame.display.mode_ok(self.screen_rect.size, window_style, 32)
-        screen = pygame.display.set_mode(self.screen_rect.size, window_style, bit_depth)
-        pygame.mixer.pre_init(
+        bit_depth = pg.display.mode_ok(self.screen_rect.size, window_style, 32)
+        screen = pg.display.set_mode(self.screen_rect.size, window_style, bit_depth)
+        pg.mixer.pre_init(
             frequency = 44100,
             size = 32,
             channels = 2,
             buffer = 512,
         )
-        pygame.font.init()
+        pg.font.init()
         self.screen = screen
         
         from scp.asset_loader import load_all_images, load_all_sounds
@@ -59,7 +59,7 @@ class ScpGame:
         self.set_state(GameState.initialized)
         self.game_menu = GameMenu(game = self)
 
-        layers = pygame.sprite.LayeredUpdates()
+        layers = pg.sprite.LayeredUpdates()
         self.game_editing = GameEditing(
             game = self,
             layers = layers,
@@ -83,4 +83,4 @@ class ScpGame:
         self.quit()
             
     def quit(self):
-        pygame.quit()
+        pg.quit()

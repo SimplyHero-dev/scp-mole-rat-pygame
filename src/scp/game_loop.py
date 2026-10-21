@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 import random
 from dataclasses import dataclass
 from scp.state import GameState
@@ -9,8 +9,8 @@ from scp.sprite_manager import Spritemanager
 
 DESIRED_FPS = 60
 
-def create_surface(size, flags = pygame.SRCALPHA):
-    return pygame.Surface(size, flags = flags)
+def create_surface(size, flags = pg.SRCALPHA):
+    return pg.Surface(size, flags = flags)
 
 @dataclass
 class GameLoop:
@@ -18,10 +18,10 @@ class GameLoop:
     
     def handle_events(self):
         
-        for event in pygame.event.get():
+        for event in pg.event.get():
             if (
-                event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE
-            ) or event.type == pygame.QUIT:
+                event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
+            ) or event.type == pg.QUIT:
                 self.set_state(GameState.quitting)
             
             self.handle_event(event)
@@ -64,13 +64,13 @@ class GameMenu(GameLoop):
             self.background.blit(background_tile.image, (x, y))
 
     def loop(self):
-        clock = pygame.time.Clock()
+        clock = pg.time.Clock()
         self.background = create_surface(self.game.screen_rect.size)
 
         self.level = self.create_level()
         self.draw_background()
 
-        group = pygame.sprite.LayeredUpdates()
+        group = pg.sprite.LayeredUpdates()
 
         while self.state == GameState.main_menu:
             self.handle_events()
@@ -80,29 +80,29 @@ class GameMenu(GameLoop):
             group.update()
             # Tell the group where to draw
             group.draw(self.screen)
-            pygame.display.flip()
-            pygame.display.set_caption(f"FPS {round(clock.get_fps())}")
+            pg.display.flip()
+            pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)
 
     def handle_event(self, event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+        if event.type == pg.KEYDOWN and event.key == pg.K_e:
             self.game.game_editing.level = self.level
             self.game.game_editing.sprite_manager.level = self.level
             self.set_state(GameState.map_editing)
 
 @dataclass
 class GameEditing(GameLoop):
-    layers: pygame.sprite.LayeredUpdates
+    layers: pg.sprite.LayeredUpdates
     sprite_manager: Spritemanager
     level: list
     spawn: callable = None
     
     @property
     def mouse_position(self):
-        return pygame.mouse.get_pos() 
+        return pg.mouse.get_pos() 
  
     def loop(self):
-        clock = pygame.time.Clock()
+        clock = pg.time.Clock()
         background = create_surface(self.game.screen_rect.size)
         background.blit(IMAGE_SPRITES[(False, False, "backdrop")], (0, 0))
     
@@ -112,6 +112,6 @@ class GameEditing(GameLoop):
             self.layers.update()   
             self.layers.draw(self.screen)
     
-            pygame.display.flip()
-            pygame.display.set_caption(f"FPS {round(clock.get_fps())}")
+            pg.display.flip()
+            pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  

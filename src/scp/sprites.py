@@ -1,8 +1,8 @@
-import pygame
+import pygame as pg
 import enum
 from scp.asset_loader import IMAGE_SPRITES
 
-class Sprite(pygame.sprite.Sprite):
+class Sprite(pg.sprite.Sprite):
     @classmethod
     def create_from_tile(
         cls,
@@ -63,7 +63,7 @@ class Sprite(pygame.sprite.Sprite):
         self.flipped_y = flipped_y
         self._last_angle = None
         if self.image is not None:
-            self.mask = pygame.mask.from_surface(self.image)
+            self.mask = pg.mask.from_surface(self.image)
             self.surface = self.image.copy()
             self.rotate(self.orientation)
         if self.rect is not None and position is not None:
@@ -80,18 +80,18 @@ class Sprite(pygame.sprite.Sprite):
         # angle we rotated to.
         if angle == self._last_angle:
             return
-        new_image = pygame.transform.rotate(self.surface, angle % 360)
+        new_image = pg.transform.rotate(self.surface, angle % 360)
         new_rect = new_image.get_rect(center = self.rect.center)
         self.image = new_image
         self.rect = new_rect
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pg.mask.from_surface(self.image)
         self._last_angle = angle
         
     def set_sprite_index(self, index):
         self.image = self.image_sprites[(self.flipped_x, self.flipped_y, index)]
         self.surface = self.image.copy()
         self.rect = self.image.get_rect(center = self.rect.center)
-        self.mask = pygame.mask.from_surface(self.image)
+        self.mask = pg.mask.from_surface(self.image)
         self.index = index
         self.rotate(self.orientation)
         
