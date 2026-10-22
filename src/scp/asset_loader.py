@@ -20,6 +20,9 @@ channels = {
 def import_spritesheet(asset_name: str, frame_width: int, frame_height: int):
     """
     Loads a spritesheet and slices it into individual frame Surfaces, reading left-to-right, top-to-bottom.
+    
+    Returns:
+        The individual frames sliced from a spritesheet 
     """
     with load ("scp.assets.gfx", asset_name) as resource:
         sheet = pg.image.load(resource).convert_alpha()

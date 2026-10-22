@@ -1,24 +1,49 @@
 import pygame as pg
 from dataclasses import dataclass, field
-from scp.game_loop import GameLoop, GameMenu, GameEditing
+from scp.game_loop import GameLoop, GameMenu, GamePlaying
 from scp.display import Display
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
-from scp.sprite_manager import Spritemanager
+from scp.level import build_level, render_level
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
 @dataclass
 class ScpGame:
+    """The game: shared state display, and the loop for each screen.
+    
+    Create instances with 'ScpGame.create', which also runs 'init'. Then
+    call 'start_game' to enter the main menu.
+    
+    Attributes:
+        screen: The surface the game draws onto. None until 'init' runs.
+        screen_rect: Size and position of the game area in pixels.
+        fullscreen: Whether the display starts in fullscreen mode.
+        state: The current 'GameState'. Loops watch this to know when to stop.
+        game_menu: Loop for the main menu. Set by 'init'.
+        game_playing: Loop for the gameplay. Set by 'init'.
+        display: Display wrapper that presents the game surface and toggles 
+        fullscreen. Created by 'init'.
+    """
     screen: pg.Rect
     screen_rect: pg.Rect
     fullscreen: bool
     state: GameState
     game_menu: GameLoop = field(init=False, default = None)
-    game_editing: GameLoop = field(init=False, default = None)
+    game_playing: GameLoop = field(init=False, default = None)
 
     @classmethod
     def create(cls, fullscreen = False):
+        """Create a game and initialize pygame, the display, and assets.
+
+        Args:
+            fullscreen: Whether to start in fullscreen mode. The default
+            starts in windowed.
+
+        Returns:
+            A fully initialized 'ScpGame', in the 'GameState.initialized'
+            state and ready for 'start_game'.
+        """
         game = cls(
             screen = None,
             screen_rect = SCREENRECT,
@@ -29,6 +54,11 @@ class ScpGame:
         return game
     
     def set_state(self, new_state):
+        """Change the game state.
+
+        Args:
+            new_state: A 'GameState' value.
+        """
         self.state = new_state
 
     def assert_state_is(self, *expected_states: GameState):
@@ -56,19 +86,21 @@ class ScpGame:
         
         self.screen = self.display.game_surface
         
+        # imported here due to loading needing the display to exist.
         from scp.asset_loader import load_all_images, load_all_sounds
+        
         load_all_images()
         load_all_sounds()
+        
+        self.level = build_level()
+        self.level_surface = render_level(self.level, self.screen_rect.size)
 
         self.set_state(GameState.initialized)
         self.game_menu = GameMenu(game = self)
-
-        layers = pg.sprite.LayeredUpdates()
-        self.game_editing = GameEditing(
+        
+        self.game_playing = GamePlaying(
             game = self,
-            layers = layers,
-            sprite_manager = Spritemanager.create(layers = layers, level = None),
-            level = None,
+            layers = pg.sprite.LayeredUpdates(),
         )
         
     def start_game(self):
@@ -80,8 +112,6 @@ class ScpGame:
         while self.state != GameState.quitting:
             if self.state == GameState.main_menu:
                 self.game_menu.loop()
-            elif self.state == GameState.map_editing:
-                self.game_editing.loop()
             elif self.state == GameState.game_playing:
                 self.game_menu.loop()
         self.quit()

@@ -26,6 +26,13 @@ class Display:
         self._create_window()
 
     def present(self):
+        """Scale and display the game surface in the current window.
+        
+        Scales the fixed-resolution game surface to fit the window while
+        preserving its aspect ratio. Centers the scaled image and fills
+        the remaining space with black bars when necessary.
+        """
+        
         # black out the entire window/screen.
         self.window.fill((0, 0, 0))
         
