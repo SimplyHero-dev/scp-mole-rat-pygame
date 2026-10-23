@@ -45,7 +45,7 @@ def load_all_sounds():
 SPRITES = {
     "backdrop": "grass_background.png",
     "blank": "blank.png",
-}
+    "player": "player.png",}
 
 IMAGE_SPRITES = {}
 
@@ -56,3 +56,12 @@ def load_all_images():
             for flipped_y in (True, False):
                 new_img = pg.transform.flip(img, flip_x = flipped_x, flip_y = flipped_y)
                 IMAGE_SPRITES[(flipped_x, flipped_y, sprite_index)] = new_img
+
+# ___ = []
+
+def load_all_animations():
+    # global ___
+    # ___ = import_spritesheet(".png", frame_width = _, frame_height = _,)
+    
+    # ___FLIPPED = [pygame.transform.flip(frame, True, False) for frame in ___]
+    pass

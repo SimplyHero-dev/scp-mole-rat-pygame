@@ -5,6 +5,7 @@ from scp.display import Display
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
 from scp.level import build_level, render_level
+from scp.player import Player
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
@@ -98,9 +99,20 @@ class ScpGame:
         self.set_state(GameState.initialized)
         self.game_menu = GameMenu(game = self)
         
+        layers = pg.sprite.LayeredUpdates()
+        factory = None
+        player = Player.create_from_tile(
+            index = "player",
+            groups = [layers],
+            position = (500, 500),
+            solid_rects = [],
+            factory = factory,
+        )
+        
         self.game_playing = GamePlaying(
             game = self,
-            layers = pg.sprite.LayeredUpdates(),
+            layers = layers,
+            player = player
         )
         
     def start_game(self):
@@ -113,7 +125,7 @@ class ScpGame:
             if self.state == GameState.main_menu:
                 self.game_menu.loop()
             elif self.state == GameState.game_playing:
-                self.game_menu.loop()
+                self.game_playing.loop()
         self.quit()
             
     def quit(self):

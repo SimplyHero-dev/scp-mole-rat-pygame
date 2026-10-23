@@ -2,6 +2,7 @@ import pygame as pg
 from dataclasses import dataclass
 from scp.state import GameState
 from scp.asset_loader import IMAGE_SPRITES
+from scp.player import Player
 
 DESIRED_FPS = 60
 
@@ -70,8 +71,7 @@ class GameLoop:
         return self.game.state
 
 class GameMenu(GameLoop):
-    """The main menu screen.
-    """
+    """The main menu screen."""
 
     def loop(self):
         """Run the menu until the state is no longer 'GameState.main_menu'."""
@@ -94,7 +94,10 @@ class GameMenu(GameLoop):
 
 @dataclass
 class GamePlaying(GameLoop):
+    """The gameplay screen."""
+    
     layers: pg.sprite.LayeredUpdates
+    player: "Player"
     
     @property
     def mouse_position(self):
@@ -103,12 +106,11 @@ class GamePlaying(GameLoop):
     def loop(self):
         clock = pg.time.Clock()
     
-        while self.state in (GameState.game_playing):
+        while self.state == GameState.game_playing:
             self.handle_events()
             self.screen.blit(self.game.level_surface, (0, 0))
             self.layers.update()   
             self.layers.draw(self.screen)
-    
             self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  
