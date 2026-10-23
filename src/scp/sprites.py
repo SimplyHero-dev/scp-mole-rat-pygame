@@ -169,8 +169,19 @@ class Layer(enum.IntEnum):
     """
     
     background = 0
+    items = 1
+    enemies = 2
+    player = 3
+    bullets = 4
+    effects = 5
     
 class Background(Sprite):
     """Non-interactive sprite drawn behind everything else."""
     
     _layer = Layer.background
+
+class Player(Sprite):
+    _layer = Layer.player
+    
+class Bullet(Sprite):
+    _layer = Layer.bullets

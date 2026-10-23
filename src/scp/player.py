@@ -2,9 +2,29 @@ import pygame as pg
 from scp.sprites import Sprite
 
 class Player(Sprite):
-    """The player-controlled character."""
+    """The player-controlled character.
+    
+    Attributes:
+        solid_rects: Rects the player cannot walk through, such as walls.
+        factory: Used to create bullets and other sprites the player spawns.
+        speed: Movement speed in pixels per frame.
+        ammo: Rounds left in magazine.
+        health: Remaining health points.
+        hitbox: Fixed-size rect used for wall collisions. 'rect' changes size
+            when the sprite rotates, so it is not used for collisions.
+    """
     
     def __init__(self, solid_rects, factory, speed = 3, **kwargs):
+        """Initialize the player.
+
+        Args:
+            solid_rects: Rects the player collides with. Pass an empty list
+                for no walls.
+            factory: Object with the methods the player uses to spawn sprites.
+            speed: Movement speed in pixels per frame.
+            **kwargs: Passed to 'Sprite.__init__' (for example 'groups',
+                'image', 'rect' and 'position').
+        """
         super().__init__(**kwargs)
         self.solid_rects = solid_rects
         self.factory = factory
@@ -34,6 +54,12 @@ class Player(Sprite):
         self._move_axis(0, round(dy * self.speed))
 
     def _move_axis(self, dx, dy):
+        """Move along one axis and push the hitbox out of any wall it hits.
+
+        Args:
+            dx: Horizontal movement in pixels.
+            dy: Vertical movement in pixels.
+        """
         self.hitbox.x += dx
         self.hitbox.y += dy
         for wall in self.solid_rects:
@@ -47,3 +73,8 @@ class Player(Sprite):
                 elif dy < 0:
                     self.hitbox.top = wall.bottom
         self.rect.center = self.hitbox.center
+    
+    def shoot(self):
+        if self.ammo > 0:
+            self.ammo -= 1
+            self.factory.create_bullet(self.rect.center, self.orientation)

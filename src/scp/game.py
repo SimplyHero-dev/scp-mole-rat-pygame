@@ -5,6 +5,7 @@ from scp.display import Display
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
 from scp.level import build_level, render_level
+from scp.factory import SpriteFactory
 from scp.player import Player
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
@@ -88,10 +89,11 @@ class ScpGame:
         self.screen = self.display.game_surface
         
         # imported here due to loading needing the display to exist.
-        from scp.asset_loader import load_all_images, load_all_sounds
+        from scp.asset_loader import load_all_images, load_all_sounds, load_all_animations
         
         load_all_images()
         load_all_sounds()
+        load_all_animations()
         
         self.level = build_level()
         self.level_surface = render_level(self.level, self.screen_rect.size)
@@ -100,12 +102,19 @@ class ScpGame:
         self.game_menu = GameMenu(game = self)
         
         layers = pg.sprite.LayeredUpdates()
-        factory = None
+        bullets = pg.sprite.Group()
+        solid_rects = []
+        factory = SpriteFactory(
+            layers=layers,
+            bullets=bullets,
+            solid_rects=solid_rects,
+            bounds=self.screen_rect,
+        )
         player = Player.create_from_tile(
             index = "player",
             groups = [layers],
             position = (500, 500),
-            solid_rects = [],
+            solid_rects = solid_rects,
             factory = factory,
         )
         

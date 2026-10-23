@@ -114,3 +114,7 @@ class GamePlaying(GameLoop):
             self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  
+
+    def handle_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+            self.player.shoot()
