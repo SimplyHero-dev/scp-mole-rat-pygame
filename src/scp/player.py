@@ -1,5 +1,10 @@
 import pygame as pg
+import math
 from scp.sprites import Sprite, AnimationState
+
+ART_ANGLE = 90
+TURN_SPEED = 3
+MUZZLE_DISTANCE = 20
 
 class Player(Sprite):
     """The player-controlled character.
@@ -30,8 +35,9 @@ class Player(Sprite):
         self.factory = factory
         self.animations = animations
         self.speed = speed
-        self.ammo = 15
+        self.ammo = 210
         self.health = 10
+        self.aim_angle = 0
         
         self.hitbox = pg.Rect(0, 0, 24, 24)
         self.hitbox.center = self.rect.center
@@ -41,6 +47,7 @@ class Player(Sprite):
         
     def update(self):
         self._move()
+        self._turn()
         self.animate()
         
     def _set_state(self, state):
@@ -87,7 +94,18 @@ class Player(Sprite):
                     self.hitbox.top = wall.bottom
         self.rect.center = self.hitbox.center
     
+    def _turn(self):
+        keys = pg.key.get_pressed()
+        turn = keys[pg.K_j] - keys[pg.K_k]
+        if turn:
+            self.orientation = (self.orientation + turn * TURN_SPEED) % 360
+            self.rotate(self.orientation)
+        self.aim_angle = self.orientation + ART_ANGLE
+    
     def shoot(self):
         if self.ammo > 0:
             self.ammo -= 1
-            self.factory.create_bullet(self.rect.center, self.orientation)
+            direction = pg.Vector2(1, 0).rotate(-self.aim_angle)
+            gun_offset = pg.Vector2(0, 27).rotate(-self.aim_angle)
+            muzzle = pg.Vector2(self.hitbox.center) + gun_offset + direction * MUZZLE_DISTANCE
+            self.factory.create_bullet(muzzle, self.aim_angle)

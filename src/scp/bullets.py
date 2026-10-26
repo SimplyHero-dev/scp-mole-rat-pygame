@@ -4,7 +4,7 @@ from scp.sprites import Sprite
 
 class Bullet(Sprite):
     """A bullet fired by the player that fires in a straight line until it hits something."""
-    def __init__(self, solid_rects, bounds, speed=12, **kwargs):
+    def __init__(self, solid_rects, bounds, speed=100, **kwargs):
         """Initialize the bullet.
 
         Args:

@@ -116,5 +116,6 @@ class GamePlaying(GameLoop):
             clock.tick(DESIRED_FPS)  
 
     def handle_event(self, event):
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
-            self.player.shoot()
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_SPACE:
+                self.player.shoot()
