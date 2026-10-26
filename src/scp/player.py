@@ -1,5 +1,4 @@
 import pygame as pg
-import math
 from scp.sprites import Sprite, AnimationState
 
 ART_ANGLE = 90
