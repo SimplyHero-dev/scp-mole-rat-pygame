@@ -1,6 +1,18 @@
 import pygame as pg
 import enum
 from scp.asset_loader import IMAGE_SPRITES
+from itertools import cycle
+
+class AnimationState(enum.Enum):
+    stopped = "stopped"
+    walking = "walking"
+    dying = "dying"
+    exploding = "exploding"
+    idle = "idle"
+    
+    @classmethod
+    def state_kill_sprite(cls, state):
+        return state in (cls.exploding, cls.dying)
 
 class Sprite(pg.sprite.Sprite):
     """A sprite with rotation, tile swapping, and collision mask support
@@ -88,6 +100,12 @@ class Sprite(pg.sprite.Sprite):
         position = (0, 0),
         flipped_x = False,
         flipped_y = False,
+        animation_state = AnimationState.stopped,
+        frames = None,
+        animation_speed = 6,
+        _animation_tick = 0,
+        frame_source = None,
+        frame_source_flipped = None,
     ):
         """Initialize the sprite. See the class docstrings for attributes.
 
@@ -101,6 +119,9 @@ class Sprite(pg.sprite.Sprite):
             position: Initial center position, or None to leave the rect-as-is.
             flipped_x: Horizontal flip flag for tile lookups.
             flipped_y: Vertical flip flag for tile lookups.
+            animation_state: states of the animation.
+            frames: animation frames.
+            animation_speed: Framerate of the animation.
         """
         super().__init__(groups)
         self.image = image
@@ -110,6 +131,12 @@ class Sprite(pg.sprite.Sprite):
         self.orientation = orientation
         self.flipped_x = flipped_x
         self.flipped_y = flipped_y
+        self.animation_state = animation_state
+        self.frames = frames
+        self.animation_speed = animation_speed
+        self._animation_tick = _animation_tick
+        self.frame_source = frame_source
+        self.frame_source_flipped = frame_source_flipped
         self._last_angle = None
         if self.image is not None:
             self.mask = pg.mask.from_surface(self.image)
@@ -161,6 +188,55 @@ class Sprite(pg.sprite.Sprite):
         self.index = index
         self.rotate(self.orientation)
         
+    def animate(self):
+        if self.frames is not None:
+            roll = self.frames.get(self.animation_state, None)
+            if roll is not None:
+                self._animation_tick += 1
+                if self._animation_tick < self.animation_speed:
+                    return
+                self._animation_tick = 0
+                
+                try:
+                    next_index = next(roll)
+                    if next_index != self.index:
+                        self.index = next_index
+                        self.set_frame_by_index(next_index)
+                except StopIteration:
+                    if AnimationState.state_kill_sprite(self.animation_state):
+                        self.kill()
+                    self.animation_state = AnimationState.stopped
+    
+    def set_animation(self, state, source, source_flipped=None, loop=False):
+        """Switch animation, showing frame 0 immediately.
+
+        Args:
+            state: The 'AnimationState' to switch to.
+            source: List of surfaces for this animation.
+            source_flipped: Mirrored surfaces, used when 'flipped_x' is set.
+            loop: Repeat forever instead of stopping after one run.
+        """
+        self.frame_source = source
+        self.frame_source_flipped = source_flipped
+        if loop:
+            # frame 0 is shown now, so the cycle starts at 1 and wraps to 0.
+            order = list(range(1, len(source))) + [0]
+            self.frames = {state: cycle(order)}
+        else:
+            self.frames = {state: iter(range(1, len(source)))}
+        self.animation_state = state
+        self._animation_tick = 0
+        self.index = 0
+        self.set_frame_by_index(0) 
+
+    def set_frame_by_index(self, index):
+        if self.flipped_x and self.frame_source_flipped is not None:
+            frames = self.frame_source_flipped
+        else:
+            frames = self.frame_source
+        self.surface = frames[index]
+        self._last_angle = None
+        self.rotate(self.orientation)
 
 class Layer(enum.IntEnum):
     """Draw-order layers; higher values are drawn on top.

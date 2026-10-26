@@ -57,11 +57,12 @@ def load_all_images():
                 new_img = pg.transform.flip(img, flip_x = flipped_x, flip_y = flipped_y)
                 IMAGE_SPRITES[(flipped_x, flipped_y, sprite_index)] = new_img
 
-# ___ = []
+PLAYER_WALKING = []
 
 def load_all_animations():
-    # global ___
-    # ___ = import_spritesheet(".png", frame_width = _, frame_height = _,)
+    PLAYER_WALKING.clear()
+    PLAYER_WALKING.extend(
+        import_spritesheet("soldierwalking.png", frame_width = 160, frame_height = 230,)
+    )
     
     # ___FLIPPED = [pygame.transform.flip(frame, True, False) for frame in ___]
-    pass

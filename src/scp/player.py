@@ -1,5 +1,5 @@
 import pygame as pg
-from scp.sprites import Sprite
+from scp.sprites import Sprite, AnimationState
 
 class Player(Sprite):
     """The player-controlled character.
@@ -14,7 +14,7 @@ class Player(Sprite):
             when the sprite rotates, so it is not used for collisions.
     """
     
-    def __init__(self, solid_rects, factory, speed = 3, **kwargs):
+    def __init__(self, solid_rects, factory, animations, speed = 3, **kwargs):
         """Initialize the player.
 
         Args:
@@ -28,15 +28,24 @@ class Player(Sprite):
         super().__init__(**kwargs)
         self.solid_rects = solid_rects
         self.factory = factory
+        self.animations = animations
         self.speed = speed
         self.ammo = 15
         self.health = 10
         
         self.hitbox = pg.Rect(0, 0, 24, 24)
         self.hitbox.center = self.rect.center
+        self.set_animation(
+            AnimationState.idle, animations[AnimationState.idle], loop=True
+        )
         
     def update(self):
         self._move()
+        self.animate()
+        
+    def _set_state(self, state):
+        if state != self.animation_state:
+            self.set_animation(state, self.animations[state], loop=True)
         
     def _move(self):
         keys = pg.key.get_pressed()
@@ -47,6 +56,10 @@ class Player(Sprite):
         
         dx = right - left
         dy = down - up
+        moving = bool(dx or dy)
+        self._set_state(
+            AnimationState.walking if moving else AnimationState.idle
+        )
         if dx and dy:   # keep diagonal speed the same as straight
             dx *= 0.7071
             dy *= 0.7071
