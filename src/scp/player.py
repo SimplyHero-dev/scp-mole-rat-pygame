@@ -38,7 +38,7 @@ class Player(Sprite):
         self.health = 10
         self.aim_angle = 0
         
-        self.hitbox = pg.Rect(0, 0, 24, 24)
+        self.hitbox = pg.Rect(0, 0, 48, 48)
         self.hitbox.center = self.rect.center
         self.set_animation(
             AnimationState.idle, animations[AnimationState.idle], loop=True
@@ -105,6 +105,6 @@ class Player(Sprite):
         if self.ammo > 0:
             self.ammo -= 1
             direction = pg.Vector2(1, 0).rotate(-self.aim_angle)
-            gun_offset = pg.Vector2(0, 27).rotate(-self.aim_angle)
+            gun_offset = pg.Vector2(0, 26).rotate(-self.aim_angle)
             muzzle = pg.Vector2(self.hitbox.center) + gun_offset + direction * MUZZLE_DISTANCE
             self.factory.create_bullet(muzzle, self.aim_angle)

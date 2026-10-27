@@ -4,11 +4,11 @@ from scp.game_loop import GameLoop, GameMenu, GamePlaying
 from scp.display import Display
 from scp.state import GameState, StateError
 from scp.grid import TILE_WIDTH, TILE_HEIGHT, TILES_X, TILES_Y
-from scp.level import build_level, render_level
 from scp.factory import SpriteFactory
 from scp.player import Player
 from scp.sprites import AnimationState
-from itertools import cycle
+from scp.camera import Camera
+from scp.level import WORLD_RECT, create_walls, render_level
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
@@ -97,21 +97,26 @@ class ScpGame:
         load_all_sounds()
         load_all_animations()
         
-        self.level = build_level()
-        self.level_surface = render_level(self.level, self.screen_rect.size)
+        self.walls = create_walls()
+        self.level_surface = render_level(
+            WORLD_RECT.size,
+            self.walls,
+        )
 
         self.set_state(GameState.initialized)
         self.game_menu = GameMenu(game = self)
         
         layers = pg.sprite.LayeredUpdates()
         bullets = pg.sprite.Group()
-        solid_rects = []
+        solid_rects = self.walls
         factory = SpriteFactory(
             layers=layers,
             bullets=bullets,
             solid_rects=solid_rects,
-            bounds=self.screen_rect,
+            bounds=WORLD_RECT,
         )
+        camera = Camera(self.screen_rect.size, WORLD_RECT.size)
+
         player = Player.create_from_surface(
             surface = PLAYER_WALKING[0],
             groups = [layers],
@@ -122,13 +127,14 @@ class ScpGame:
                 AnimationState.idle: [PLAYER_WALKING[0]],
                 AnimationState.walking: PLAYER_WALKING,
             },
-            animation_speed = 6,
+            animation_speed = 8,
         )
         
         self.game_playing = GamePlaying(
             game = self,
             layers = layers,
-            player = player
+            player = player,
+            camera = camera,
         )
         
     def start_game(self):

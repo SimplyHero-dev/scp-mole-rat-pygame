@@ -1,34 +1,30 @@
 import pygame as pg
-from scp.asset_loader import IMAGE_SPRITES
-from scp.grid import TILES_X, TILES_Y, create_tile_map, tile_positions
-from scp.sprites import Background
+
+WORLD_RECT = pg.Rect(0, 0, 1920, 1920)
 
 BACKGROUND_COLOUR = (35, 35, 35)
+WALL_COLOUR = (75, 75, 75)
 
-LAYOUT = [
-    "." * TILES_X
-    for _ in range(TILES_Y)
-]
+def create_walls():
+    w, h = WORLD_RECT.size
+    t = 32 # wall thickness
+    return [
+        # Outer walls
+        pg.Rect(0, 0, w, t),
+        pg.Rect(0, h - t, w, t),
+        pg.Rect(0, 0, t, h),
+        pg.Rect(w - t, 0, t, h),
 
-LEGEND = {
-    ".": "blank"
-    # "#": "wall",
-}
+        # Example interior walls
+        pg.Rect(300, 200, 300, 32),
+        pg.Rect(600, 200, 32, 250),
+        pg.Rect(900, 500, 400, 32),
+    ]
 
-def build_level():
-    tile_map = create_tile_map()
-    for gy, gx, x, y, in tile_positions():
-        tile = Background.create_from_tile(
-            groups = [],
-            index = LEGEND[LAYOUT[gy][gx]],
-        )
-        tile.rect.topleft = (x, y)
-        tile_map[gy][gx] = tile
-    return tile_map
-
-def render_level(tile_map, size):
-    surface = pg.Surface(size, pg.SRCALPHA)
+def render_level(size, walls):
+    surface = pg.Surface(size)
     surface.fill(BACKGROUND_COLOUR)
-    for gy, gx, x, y in tile_positions():
-        surface.blit(tile_map[gy][gx].image, (x, y))
+
+    for wall in walls:
+        pg.draw.rect(surface, WALL_COLOUR, wall)
     return surface
