@@ -9,6 +9,7 @@ from scp.player import Player
 from scp.sprites import AnimationState
 from scp.camera import Camera
 from scp.level import WORLD_RECT, create_walls, render_level
+from scp.lighting import Darkness
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
@@ -135,6 +136,7 @@ class ScpGame:
             layers = layers,
             player = player,
             camera = camera,
+            darkness = Darkness(self.screen_rect.size)
         )
         
     def start_game(self):

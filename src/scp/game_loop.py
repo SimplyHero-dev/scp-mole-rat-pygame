@@ -4,6 +4,7 @@ from scp.state import GameState
 from scp.asset_loader import IMAGE_SPRITES
 from scp.player import Player
 from scp.camera import Camera
+from scp.lighting import Darkness
 
 DESIRED_FPS = 60
 
@@ -100,6 +101,7 @@ class GamePlaying(GameLoop):
     layers: pg.sprite.LayeredUpdates
     player: "Player"
     camera: "Camera"
+    darkness: Darkness
     
     @property
     def mouse_position(self):
@@ -121,7 +123,8 @@ class GamePlaying(GameLoop):
             )
             for sprite in self.layers.sprites():
                 self.screen.blit(sprite.image, self.camera.apply(sprite.rect))
-            
+
+            self.darkness.render(self.screen, self.player, self.camera)
             self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  

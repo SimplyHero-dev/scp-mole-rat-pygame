@@ -1,9 +1,13 @@
 import pygame as pg
+import math
 from scp.sprites import Sprite, AnimationState
 
 ART_ANGLE = 90
 TURN_SPEED = 3
 MUZZLE_DISTANCE = 20
+FLASH_FRAMES = 12
+FLASH_RANGE = 380
+FLASH_HALF_ANGLE = 22
 
 class Player(Sprite):
     """The player-controlled character.
@@ -37,6 +41,7 @@ class Player(Sprite):
         self.ammo = 210
         self.health = 10
         self.aim_angle = 0
+        self.flash_on = False
         
         self.hitbox = pg.Rect(0, 0, 48, 48)
         self.hitbox.center = self.rect.center
@@ -47,6 +52,7 @@ class Player(Sprite):
     def update(self):
         self._move()
         self._turn()
+        self.flash_on = bool(pg.key.get_pressed()[pg.K_LSHIFT])
         self.animate()
         
     def _set_state(self, state):
@@ -108,3 +114,14 @@ class Player(Sprite):
             gun_offset = pg.Vector2(0, 26).rotate(-self.aim_angle)
             muzzle = pg.Vector2(self.hitbox.center) + gun_offset + direction * MUZZLE_DISTANCE
             self.factory.create_bullet(muzzle, self.aim_angle)
+
+    def lights(self, point):
+        if not self.flash_on:
+            return False
+        dx = point[0] - self.hitbox.centerx
+        dy = point[1] - self.hitbox.centery
+        if math.hypot(dx, dy) > FLASH_RANGE:
+            return False
+        angle = math.degrees(math.atan2(-dy, dx))
+        diff = (angle - self.aim_angle + 180) % 360 - 180
+        return abs(diff) <= FLASH_HALF_ANGLE
