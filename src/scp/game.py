@@ -8,8 +8,9 @@ from scp.factory import SpriteFactory
 from scp.player import Player
 from scp.sprites import AnimationState
 from scp.camera import Camera
-from scp.level import WORLD_RECT, create_walls, render_level
+from scp.level import WORLD_RECT, create_doors, create_walls, render_level
 from scp.lighting import Darkness
+from scp.doors import Door
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
@@ -130,13 +131,18 @@ class ScpGame:
             },
             animation_speed = 8,
         )
+
+        doors = pg.sprite.Group()
+        for area in create_doors():
+            Door.create(area, [layers, doors], solid_rects)
         
         self.game_playing = GamePlaying(
             game = self,
             layers = layers,
             player = player,
             camera = camera,
-            darkness = Darkness(self.screen_rect.size)
+            darkness = Darkness(self.screen_rect.size),
+            doors = doors,
         )
         
     def start_game(self):

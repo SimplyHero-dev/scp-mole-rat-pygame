@@ -8,6 +8,9 @@ from scp.lighting import Darkness
 
 DESIRED_FPS = 60
 
+INTERACT_KEY = pg.K_e
+REACH = 148
+
 def create_surface(size, flags = pg.SRCALPHA):
     """Create a blank surface.
 
@@ -102,6 +105,7 @@ class GamePlaying(GameLoop):
     player: "Player"
     camera: "Camera"
     darkness: Darkness
+    doors: pg.sprite.Group
     darkness_enabled: bool = False
     
     @property
@@ -138,3 +142,13 @@ class GamePlaying(GameLoop):
 
             elif event.key == pg.K_p:
                 self.darkness_enabled = not self.darkness_enabled
+
+            elif event.key == INTERACT_KEY:
+                self._interact()
+
+    def _interact(self):
+        pos = self.player.hitbox.center
+        nearby = [d for d in self.doors if d.distance_to(pos) <= REACH]
+        if nearby:
+            door = min(nearby, key=lambda d: d.distance_to(pos))
+            door.toggle(self.player.hitbox)
