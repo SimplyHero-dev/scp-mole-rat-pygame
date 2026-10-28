@@ -6,8 +6,9 @@ ART_ANGLE = 90
 TURN_SPEED = 3
 MUZZLE_DISTANCE = 20
 FLASH_FRAMES = 12
-FLASH_RANGE = 380
-FLASH_HALF_ANGLE = 22
+FLASH_RANGE = 540
+FLASH_HALF_ANGLE = 44
+FLASH_OFFSET = (64, 25) # pixels (forward, right) from the center to the gun.
 
 class Player(Sprite):
     """The player-controlled character.
@@ -114,12 +115,24 @@ class Player(Sprite):
             gun_offset = pg.Vector2(0, 26).rotate(-self.aim_angle)
             muzzle = pg.Vector2(self.hitbox.center) + gun_offset + direction * MUZZLE_DISTANCE
             self.factory.create_bullet(muzzle, self.aim_angle)
+    
+    @property
+    def flash_origin(self):
+        forward = pg.Vector2(1, 0).rotate(-self.aim_angle)
+        right = pg.Vector2(-forward.y, forward.x)
+        return (
+            pg.Vector2(self.hitbox.center)
+            + forward * FLASH_OFFSET[0]
+            + right * FLASH_OFFSET[1]
+        )
 
     def lights(self, point):
+        """Whether a point is inside the flash right now."""
         if not self.flash_on:
             return False
-        dx = point[0] - self.hitbox.centerx
-        dy = point[1] - self.hitbox.centery
+        origin = self.flash_origin
+        dx = point[0] - origin.x
+        dy = point[1] - origin.y
         if math.hypot(dx, dy) > FLASH_RANGE:
             return False
         angle = math.degrees(math.atan2(-dy, dx))

@@ -3,20 +3,40 @@ import math
 from scp.player import FLASH_HALF_ANGLE, FLASH_RANGE
 
 DARKNESS_ALPHA = 243
-GLOW_RADIUS = 64
+GLOW_RADIUS = 200
 GLOW_STRENGTH = 200
 FLASH_STRENGTH = 255
 BLUR_SCALE = 4
 
 
-def make_radial(radius, strenght, power=2.0):
+def make_radial(radius, strength, power=2.0):
+    """Create a round light around the player that fades out from the middle.
+
+    Args:
+        radius: Radius in pixels.
+        strength: Alpha at the center (0-255); how much darkness it removes.
+        power: Fall-off curve. Higher values concentrate light in the middle.
+
+    Returns:
+        A 'pg.Surface' whose alpha is the light intensity.
+    """
     surface = pg.Surface((radius * 2, radius * 2), pg.SRCALPHA)
     for r in range(radius, 0, -2):
-        alpha = int(strenght * (1 -r / radius) ** power)
+        alpha = int(strength * (1 -r / radius) ** power)
         pg.draw.circle(surface, (255, 255, 255, alpha), (radius, radius), r)
     return surface
 
 def make_cone(radius, half_angle, strength):
+    """Create a flashlight cone, soft at the edges and far end.
+
+    Args:
+        radius: Radius in pixels.
+        half_angle: Half the width of the cone, in degrees.
+        strength: Alpha at the brightest point (0-255).
+
+    Returns:
+        A 'pg.Surface' whose alpha is the light intensity.
+    """
     small_r = radius // BLUR_SCALE
     small = pg.Surface((small_r * 2, small_r * 2), pg.SRCALPHA)
     center = pg.Vector2((small_r, small_r))
@@ -40,21 +60,24 @@ def make_cone(radius, half_angle, strength):
 
 
 class Darkness:
+    """Covers the screen in darkness, with soft light cut out of it."""
     def __init__(self, size):
         self.surface = pg.Surface(size, pg.SRCALPHA)
         self.glow = make_radial(GLOW_RADIUS, GLOW_STRENGTH)
         self.cone = make_cone(FLASH_RANGE, FLASH_HALF_ANGLE, FLASH_STRENGTH)
 
     def render(self, screen, player, camera):
+        """Draw the darkness over the 'screen'. Call after drawing the world."""
         self.surface.fill((0, 0, 0, DARKNESS_ALPHA))
-        origin = camera.to_screen(player.hitbox.center)
-        self._cut(self.glow, origin)
+        self._cut(self.glow, camera.to_screen(player.hitbox.center))
 
         if player.flash_on:
-            self._cut(pg.transform.rotate(self.cone, player.aim_angle), origin)
+            cone = pg.transform.rotate(self.cone, player.aim_angle)
+            self._cut(cone, camera.to_screen(player.flash_origin))
 
         screen.blit(self.surface, (0, 0))
 
     def _cut(self, light, center):
+        """Remove darkness where 'light' is bright, centered on 'center'."""
         rect = light.get_rect(center=(round(center.x), round(center.y)))
         self.surface.blit(light, rect, special_flags=pg.BLEND_RGBA_SUB)
