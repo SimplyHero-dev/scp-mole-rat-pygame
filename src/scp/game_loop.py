@@ -102,6 +102,7 @@ class GamePlaying(GameLoop):
     player: "Player"
     camera: "Camera"
     darkness: Darkness
+    darkness_enabled: bool = False
     
     @property
     def mouse_position(self):
@@ -124,7 +125,8 @@ class GamePlaying(GameLoop):
             for sprite in self.layers.sprites():
                 self.screen.blit(sprite.image, self.camera.apply(sprite.rect))
 
-            # self.darkness.render(self.screen, self.player, self.camera)
+            if self.darkness_enabled:
+                self.darkness.render(self.screen, self.player, self.camera)
             self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  
@@ -133,3 +135,6 @@ class GamePlaying(GameLoop):
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_SPACE:
                 self.player.shoot()
+
+            elif event.key == pg.K_p:
+                self.darkness_enabled = not self.darkness_enabled

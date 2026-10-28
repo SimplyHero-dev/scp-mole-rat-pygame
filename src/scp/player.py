@@ -23,7 +23,7 @@ class Player(Sprite):
             when the sprite rotates, so it is not used for collisions.
     """
     
-    def __init__(self, solid_rects, factory, animations, speed = 3, **kwargs):
+    def __init__(self, solid_rects, factory, animations, speed = 20, **kwargs): # speed = 3 in final
         """Initialize the player.
 
         Args:
