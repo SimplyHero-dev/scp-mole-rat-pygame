@@ -121,7 +121,7 @@ class ScpGame:
         player = Player.create_from_surface(
             surface = PLAYER_WALKING[0],
             groups = [layers],
-            position = (500, 500),
+            position = (1500, 1500),
             solid_rects = solid_rects,
             factory = factory,
             animations={

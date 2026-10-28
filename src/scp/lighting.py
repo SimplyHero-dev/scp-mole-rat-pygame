@@ -2,7 +2,7 @@ import pygame as pg
 import math
 from scp.player import FLASH_HALF_ANGLE, FLASH_RANGE
 
-DARKNESS_ALPHA = 243
+DARKNESS_ALPHA = 240
 GLOW_RADIUS = 200
 GLOW_STRENGTH = 200
 FLASH_STRENGTH = 255
