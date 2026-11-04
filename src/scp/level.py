@@ -5,6 +5,7 @@ WORLD_RECT = pg.Rect(0, 0, 7056, 4560)
 BACKGROUND_COLOUR = (35, 35, 35)
 WALL_COLOUR = (75, 75, 75)
 WALL_THICKNESS = 32
+DOOR_THICKNESS = 26
 
 def horizontal_wall(x, y, length):
     return pg.Rect(x, y, length, WALL_THICKNESS)
@@ -61,10 +62,10 @@ def create_walls():
 
 
 def horizontal_door(x, y, length):
-    return pg.Rect(x, y, length, WALL_THICKNESS)
+    return pg.Rect(x, y, length, DOOR_THICKNESS)
 
 def vertical_door(x, y, length):
-    return pg.Rect(x, y, WALL_THICKNESS, length)
+    return pg.Rect(x, y, DOOR_THICKNESS, length)
 
 def create_doors():
     return [
