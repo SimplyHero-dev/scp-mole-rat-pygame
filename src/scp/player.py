@@ -43,6 +43,7 @@ class Player(Sprite):
         self.health = 10
         self.aim_angle = 0
         self.flash_on = False
+        self.cards = set()
         
         self.hitbox = pg.Rect(0, 0, 48, 48)
         self.hitbox.center = self.rect.center
@@ -138,3 +139,22 @@ class Player(Sprite):
         angle = math.degrees(math.atan2(-dy, dx))
         diff = (angle - self.aim_angle + 180) % 360 - 180
         return abs(diff) <= FLASH_HALF_ANGLE
+
+    def add_card(self, card_id):
+        """Add a keycard to the player's collection.
+
+        Args:
+            card_id: The 'CardId' of the card.
+        """
+        self.cards.add(card_id)
+        
+    def missing_cards(self, required):
+        """Get the cards from 'required' that the player does not have.
+
+        Args:
+            required: Iterable of 'Cardid'.
+
+        Returns:
+            A set of missing 'CardId'. Empty if the player has them all.
+        """
+        return set(required) - self.cards

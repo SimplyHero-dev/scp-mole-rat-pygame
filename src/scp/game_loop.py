@@ -105,8 +105,10 @@ class GamePlaying(GameLoop):
     player: "Player"
     camera: "Camera"
     darkness: Darkness
-    doors: pg.sprite.Group
+    interactables: pg.sprite.Group
     darkness_enabled: bool = False
+    message: str = ""
+    message_timer: int = 0
     
     @property
     def mouse_position(self):
@@ -114,6 +116,7 @@ class GamePlaying(GameLoop):
  
     def loop(self):
         clock = pg.time.Clock()
+        font = pg.font.Font(None, 28)
     
         while self.state == GameState.game_playing:
             self.handle_events()
@@ -131,6 +134,10 @@ class GamePlaying(GameLoop):
 
             if self.darkness_enabled:
                 self.darkness.render(self.screen, self.player, self.camera)
+            if self.message_timer > 0:
+                self.message_timer -= 1
+                text = font.render(self.message, True, (230, 230, 230))
+                self.screen.blit(text, (20, self.screen.get_height() - 40))
             self.game.display.present()
             pg.display.set_caption(f"FPS {round(clock.get_fps())}")
             clock.tick(DESIRED_FPS)  
@@ -148,7 +155,13 @@ class GamePlaying(GameLoop):
 
     def _interact(self):
         pos = self.player.hitbox.center
-        nearby = [d for d in self.doors if d.distance_to(pos) <= REACH]
+        nearby = [d for d in self.interactables if d.distance_to(pos) <= REACH]
         if nearby:
-            door = min(nearby, key=lambda d: d.distance_to(pos))
-            door.toggle(self.player.hitbox)
+            target = min(nearby, key=lambda d: d.distance_to(pos))
+            message = target.interact(self.player)
+            if message:
+                self.show_message(message)
+    
+    def show_message(self, text, frames=180):
+        self.message = text
+        self.message_timer = frames

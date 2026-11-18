@@ -10,7 +10,9 @@ from scp.sprites import AnimationState
 from scp.camera import Camera
 from scp.level import WORLD_RECT, create_doors, create_walls, render_level
 from scp.lighting import Darkness
-from scp.doors import Door
+from scp.doors import Door, LockedDoor
+from scp.keycards import CardId, Keycard
+from scp.level import MAIN_ENTRANCE, WORLD_RECT, create_doors, create_walls, render_level
 
 SCREENRECT = pg.Rect(0, 0, TILE_WIDTH * TILES_X, TILE_HEIGHT * TILES_Y)
 
@@ -132,9 +134,20 @@ class ScpGame:
             animation_speed = 8,
         )
 
-        doors = pg.sprite.Group()
+        interactables = pg.sprite.Group()
         for area in create_doors():
-            Door.create(area, [layers, doors], solid_rects)
+            Door.create(area, [layers, interactables], solid_rects)
+            
+        LockedDoor.create(
+            MAIN_ENTRANCE,
+            [layers, interactables],
+            solid_rects,
+            required_cards={CardId.guard, CardId.records},
+            locked_message="The main entrance is locked.",
+        )
+        
+        Keycard.create(CardId.guard, (600, 900), [layers, interactables])
+        Keycard.create(CardId.records, (1500, 900), [layers, interactables])
         
         self.game_playing = GamePlaying(
             game = self,
@@ -142,7 +155,7 @@ class ScpGame:
             player = player,
             camera = camera,
             darkness = Darkness(self.screen_rect.size),
-            doors = doors,
+            interactables=interactables,
         )
         
     def start_game(self):

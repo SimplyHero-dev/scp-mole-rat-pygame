@@ -6,6 +6,14 @@ BACKGROUND_COLOUR = (35, 35, 35)
 WALL_COLOUR = (75, 75, 75)
 WALL_THICKNESS = 32
 DOOR_THICKNESS = 26
+ENTRANCE_SIZE = 384
+
+MAIN_ENTRANCE = pg.Rect(
+    WORLD_RECT.width - WALL_THICKNESS,
+    WORLD_RECT.height // 2 - ENTRANCE_SIZE // 2,
+    WALL_THICKNESS,
+    ENTRANCE_SIZE,
+)
 
 def horizontal_wall(x, y, length):
     return pg.Rect(x, y, length, WALL_THICKNESS)
@@ -21,7 +29,8 @@ def create_walls():
         horizontal_wall(0, 0, w),
         horizontal_wall(0, h - t, w),
         vertical_wall(0, 0, h),
-        vertical_wall(w - t, 0, h),
+        vertical_wall(w - t, 0, MAIN_ENTRANCE.top),
+        vertical_wall(w - t, MAIN_ENTRANCE.bottom, h - MAIN_ENTRANCE.bottom),
 
         # Upper rooms
         horizontal_wall(t, 600, 1800),
@@ -57,7 +66,10 @@ def create_walls():
         horizontal_wall(2632, 3850, 1600),
         vertical_wall(2367, 3850, 678),
         vertical_wall(4232, 3140, 1388),
-        horizontal_wall(4232, 3140, 1600),
+        horizontal_wall(4232, 3140, 1000),
+        horizontal_wall(5632, 3140, 600),
+        vertical_wall(6232, 3140, 1200),
+        horizontal_wall(6232, 3640, 624),
     ]
 
 
@@ -88,6 +100,10 @@ def create_doors():
         # Lower rooms
         horizontal_door(2132, 3850, 200),
         horizontal_door(2432, 3850, 200),
+        horizontal_door(5232, 3140, 200),
+        horizontal_door(5432, 3140, 200),
+        vertical_door(6232, 4340, 188),
+        horizontal_door(6856, 3640, 168),
     ]
 
 
