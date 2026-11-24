@@ -1,5 +1,7 @@
 import pygame as pg
 import math
+import random
+from dataclasses import dataclass
 from scp.player import FLASH_HALF_ANGLE, FLASH_RANGE
 
 DARKNESS_ALPHA = 241
@@ -61,23 +63,69 @@ def make_cone(radius, half_angle, strength):
 
 class Darkness:
     """Covers the screen in darkness, with soft light cut out of it."""
-    def __init__(self, size):
+    def __init__(self, size, lights=()):
         self.surface = pg.Surface(size, pg.SRCALPHA)
         self.glow = make_radial(GLOW_RADIUS, GLOW_STRENGTH)
         self.cone = make_cone(FLASH_RANGE, FLASH_HALF_ANGLE, FLASH_STRENGTH)
+        self.lamps = []
+        for light in lights:
+            glow = make_radial(light.radius, light.strength, power=1.5)
+            glow.fill((*light.colour, 255), special_flags=pg.BLEND_RGBA_MULT)
+            reveal = make_radial(light.radius, light.reveal) if light.reveal else None
+            self.lamps.append((light, glow, reveal))
 
     def render(self, screen, player, camera):
         """Draw the darkness over the 'screen'. Call after drawing the world."""
         self.surface.fill((0, 0, 0, DARKNESS_ALPHA))
         self._cut(self.glow, camera.to_screen(player.hitbox.center))
 
+        for light, _, reveal in self.lamps:
+            if reveal:
+                self._cut(reveal, camera.to_screen(light.position))
+        
         if player.flash_on:
             cone = pg.transform.rotate(self.cone, player.aim_angle)
             self._cut(cone, camera.to_screen(player.flash_origin))
 
         screen.blit(self.surface, (0, 0))
+        self._draw_lamps(screen, camera)
 
+    def _draw_lamps(self, screen, camera):
+        """Draw the glows on top of the darkness, skipping off-screen ones."""
+        view = screen.get_rect()
+        now = pg.time.get_ticks()
+        for i, (light, glow, _) in enumerate(self.lamps):
+            pos = camera.to_screen(light.position)
+            rect = glow.get_rect(center=(round(pos.x), round(pos.y)))
+            if not view.colliderect(rect):
+                continue
+            level = 1.0
+            if light.flicker:
+                # two slow waves added together look irregular but not strobing
+                wave = 0.5 + 0.5 * math.sin(now * 0.013 + i) * math.sin(now * 0.031)
+                level = 1.0 - light.flicker * wave
+            glow.set_alpha(int(255 * level))
+            screen.blit(glow, rect)
+            if light.sign:
+                sign = pg.Rect((0, 0), light.sign)
+                sign.center = rect.center
+                pg.draw.rect(screen, light.colour, sign)
+    
     def _cut(self, light, center):
         """Remove darkness where 'light' is bright, centered on 'center'."""
         rect = light.get_rect(center=(round(center.x), round(center.y)))
         self.surface.blit(light, rect, special_flags=pg.BLEND_RGBA_SUB)
+
+@dataclass
+class LightSource:
+    position: tuple
+    radius: int = 90
+    colour: tuple = (255, 255, 255)
+    strength: int = 110
+    reveal: int = 0
+    flicker: float = 0.0
+    sign: tuple = None
+    
+
+    
+    

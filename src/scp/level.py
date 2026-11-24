@@ -1,4 +1,5 @@
 import pygame as pg
+from scp.lighting import LightSource
 
 WORLD_RECT = pg.Rect(0, 0, 7056, 4560)
 
@@ -106,6 +107,23 @@ def create_doors():
         horizontal_door(6856, 3640, 168),
     ]
 
+DOOR_LIGHT = dict(
+    radius = 70,
+    colour=(220, 40, 30),
+    strength=80,
+    flicker=0.1,
+)
+
+def create_lights():
+    lights = [
+        LightSource(
+            (MAIN_ENTRANCE.left - 48, MAIN_ENTRANCE.centery),
+            radius=110, colour=(40, 220, 90), strength=120, sign=(28, 12)
+        ),
+    ]
+    for area in create_doors():
+        lights.append(LightSource(area.center, **DOOR_LIGHT))
+    return lights
 
 def render_level(size, walls):
     surface = pg.Surface(size)

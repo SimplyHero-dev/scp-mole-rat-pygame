@@ -8,7 +8,7 @@ from scp.factory import SpriteFactory
 from scp.player import Player
 from scp.sprites import AnimationState
 from scp.camera import Camera
-from scp.level import WORLD_RECT, create_doors, create_walls, render_level
+from scp.level import WORLD_RECT, create_doors, create_walls, render_level, create_lights
 from scp.lighting import Darkness
 from scp.doors import Door, LockedDoor
 from scp.keycards import CardId, Keycard
@@ -154,7 +154,7 @@ class ScpGame:
             layers = layers,
             player = player,
             camera = camera,
-            darkness = Darkness(self.screen_rect.size),
+            darkness = Darkness(self.screen_rect.size, create_lights()),
             interactables=interactables,
         )
         
