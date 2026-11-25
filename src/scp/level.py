@@ -73,6 +73,28 @@ def create_walls():
         horizontal_wall(6232, 3640, 624),
     ]
 
+ROOMS = {
+    # Upper rooms
+    "north_hall": pg.Rect(32, 32, 1768, 568),
+    "room_a":     pg.Rect(32, 632, 568, 600),
+    "room_b":     pg.Rect(632, 632, 568, 600),
+    "room_c":     pg.Rect(1232, 632, 568, 600),
+
+    # Courtyard
+    "courtyard":  pg.Rect(1032, 2032, 968, 936),
+
+    # Left rooms
+    "west_1":     pg.Rect(32, 1832, 500, 568),
+    "west_2":     pg.Rect(32, 2432, 500, 568),
+    "west_3":     pg.Rect(32, 3032, 500, 568),
+    "west_4":     pg.Rect(32, 3632, 500, 896),
+
+    # Lower rooms
+    "lower_west": pg.Rect(564, 3882, 1803, 646),
+    "lower_mid":  pg.Rect(2399, 3882, 1833, 646),
+    "east_hall":  pg.Rect(4264, 3172, 1968, 1356),
+    "east_room":  pg.Rect(6264, 3672, 760, 856),
+}
 
 def horizontal_door(x, y, length):
     return pg.Rect(x, y, length, DOOR_THICKNESS)

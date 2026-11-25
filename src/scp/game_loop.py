@@ -1,5 +1,6 @@
 import pygame as pg
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from scp.level import ROOMS
 from scp.state import GameState
 from scp.asset_loader import IMAGE_SPRITES
 from scp.player import Player
@@ -123,6 +124,11 @@ class GamePlaying(GameLoop):
 
             self.layers.update()
             self.camera.follow(self.player.hitbox.center)
+            
+            active = {
+                name for name, rect in ROOMS.items()
+                if self.player.hitbox.colliderect(rect.inflate(48, 48))
+            }
 
             self.screen.fill((0, 0, 0))
             self.screen.blit(
@@ -131,9 +137,13 @@ class GamePlaying(GameLoop):
             )
             for sprite in self.layers.sprites():
                 self.screen.blit(sprite.image, self.camera.apply(sprite.rect))
-
+                
             if self.darkness_enabled:
                 self.darkness.render(self.screen, self.player, self.camera)
+                
+            for name, rect in ROOMS.items():
+                if name not in active:
+                    pg.draw.rect(self.screen, (0, 0, 0), self.camera.apply(rect))
             if self.message_timer > 0:
                 self.message_timer -= 1
                 text = font.render(self.message, True, (230, 230, 230))
