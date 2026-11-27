@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 from scp.lighting import LightSource
 
 WORLD_RECT = pg.Rect(0, 0, 7056, 4560)
@@ -150,6 +151,16 @@ def create_lights():
 def render_level(size, walls):
     surface = pg.Surface(size)
     surface.fill(BACKGROUND_COLOUR)
+    
+    rng = random.Random(1)
+    for _ in range(4000):
+        x = rng.randrange(size[0])
+        y = rng.randrange(size[1])
+        w = rng.randint(8, 60)
+        h = rng.randint(8, 60)
+        shade = rng.randint(-5, 5)
+        colour = tuple(c + shade for c in BACKGROUND_COLOUR)
+        pg.draw.rect(surface, colour, (x, y, w, h))
 
     for wall in walls:
         pg.draw.rect(surface, WALL_COLOUR, wall)
