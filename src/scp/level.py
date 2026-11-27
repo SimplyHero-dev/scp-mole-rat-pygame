@@ -21,6 +21,26 @@ MAIN_ENTRANCE = pg.Rect(
     ENTRANCE_SIZE,
 )
 
+def weather(surface, area, rng, density=1.0, strength=14):
+    """Make whatever is already drawn in `area` look worn and dirty.
+
+    Args:
+        surface: Surface to draw on.
+        area: Rect to weather. Nothing outside it is touched.
+        rng: A `random.Random`, so the result is repeatable.
+        density: How many patches. 1.0 is about one per 150 pixels.
+        strength: How visible the patches are (alpha, 0-255).
+    """
+    overlay = pg.Surface(area.size, pg.SRCALPHA)
+    for _ in range(int(area.width * area.height * density / 150)):
+        w = rng.randint(3, 12)
+        h = rng.randint(3, 12)
+        x = rng.randint(-w, area.width)
+        y = rng.randint(-h, area.height)
+        colour = (255, 255, 255, strength) if rng.random() < 0.5 else (0, 0, 0, strength)
+        pg.draw.rect(overlay, colour, pg.Rect(x, y, w, h))
+    surface.blit(overlay, area.topleft)
+
 def horizontal_wall(x, y, length):
     return pg.Rect(x, y, length, WALL_THICKNESS)
 
@@ -141,6 +161,7 @@ def draw_bed(surface, bed):
         surface: Surface to draw on.
         bed: The bed's rect, as made by 'create_bed'.
     """
+    rng = random.Random(1)
     end = 10
     
     pg.draw.rect(surface, BED_SHEET_COLOUR, bed)  # mattress
@@ -160,6 +181,7 @@ def draw_bed(surface, bed):
     # brown ends (headboard and footboard)
     pg.draw.rect(surface, BED_END_COLOUR, pg.Rect(bed.left, bed.top, bed.width, end))
     pg.draw.rect(surface, BED_END_COLOUR, pg.Rect(bed.left, bed.bottom - end, bed.width, end))
+    weather(surface, bed, rng)
 
 def create_bed(x, y, length=160, width=296):
     return pg.Rect(x, y, length, width)
