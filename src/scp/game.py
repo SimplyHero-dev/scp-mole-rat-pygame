@@ -8,7 +8,7 @@ from scp.factory import SpriteFactory
 from scp.player import Player
 from scp.sprites import AnimationState
 from scp.camera import Camera
-from scp.level import WORLD_RECT, create_doors, create_walls, render_level, create_lights
+from scp.level import WORLD_RECT, create_doors, create_props, create_walls, render_level, create_lights
 from scp.lighting import Darkness
 from scp.doors import Door, LockedDoor
 from scp.keycards import CardId, Keycard
@@ -101,7 +101,7 @@ class ScpGame:
         load_all_sounds()
         load_all_animations()
         
-        self.walls = create_walls()
+        self.walls = create_walls() + create_props()
         self.level_surface = render_level(
             WORLD_RECT.size,
             self.walls,

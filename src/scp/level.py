@@ -6,6 +6,10 @@ WORLD_RECT = pg.Rect(0, 0, 7056, 4560)
 
 BACKGROUND_COLOUR = (35, 35, 35)
 WALL_COLOUR = (75, 75, 75)
+BED_END_COLOUR = (62, 40, 24)
+BED_SHEET_COLOUR = (122, 120, 112)
+BED_BLANKET_COLOUR = (58, 66, 80)
+PILLOW_COLOUR = (170, 168, 158)
 WALL_THICKNESS = 32
 DOOR_THICKNESS = 26
 ENTRANCE_SIZE = 384
@@ -130,6 +134,43 @@ def create_doors():
         horizontal_door(6856, 3640, 168),
     ]
 
+def draw_bed(surface, bed):
+    """Draw a bed with a pillow and brown ends. The head is the top edge.
+
+    Args:
+        surface: Surface to draw on.
+        bed: The bed's rect, as made by 'create_bed'.
+    """
+    end = 10
+    
+    pg.draw.rect(surface, BED_SHEET_COLOUR, bed)  # mattress
+
+    # blanket: from below the pillow down to the foot end
+    blanket = pg.Rect(
+        bed.left, bed.top + end + 70, bed.width, bed.height - end * 2 - 70
+    )
+    pg.draw.rect(surface, BED_BLANKET_COLOUR, blanket)
+
+    # pillow, centered near the head
+    pillow = pg.Rect(0, 0, bed.width - 40, 50)
+    pillow.midtop = (bed.centerx, bed.top + end + 8)
+    pg.draw.rect(surface, PILLOW_COLOUR, pillow)
+    pg.draw.rect(surface, BED_SHEET_COLOUR, pillow, 2)  # outline
+
+    # brown ends (headboard and footboard)
+    pg.draw.rect(surface, BED_END_COLOUR, pg.Rect(bed.left, bed.top, bed.width, end))
+    pg.draw.rect(surface, BED_END_COLOUR, pg.Rect(bed.left, bed.bottom - end, bed.width, end))
+
+def create_bed(x, y, length=160, width=296):
+    return pg.Rect(x, y, length, width)
+
+def create_props():
+    return [
+        create_bed(420, 650),
+        create_bed(1020, 650),
+        create_bed(1620, 650),
+    ]
+
 DOOR_LIGHT = dict(
     radius = 70,
     colour=(220, 40, 30),
@@ -164,4 +205,7 @@ def render_level(size, walls):
 
     for wall in walls:
         pg.draw.rect(surface, WALL_COLOUR, wall)
+    for bed in create_props():
+        draw_bed(surface, bed)
+        
     return surface
